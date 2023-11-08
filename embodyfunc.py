@@ -1,72 +1,116 @@
 import os
 from PySide6 import QtWidgets
-from ver2.handledirectory import HandleDir, FileIO
-
-def setTree(root_path: str, parent_tree: QtWidgets.QTreeWidgetItem):
-    """루트 디렉토리 경로로부터 모든 하위 디렉토리 및 파일들을
-    트리 위젯에 보이도록 설정한다."""
-    base = os.path.basename(root_path)
-    file_and_ext = base.rsplit('.', 1)
-    if len(file_and_ext) == 2:
-        item = QtWidgets.QTreeWidgetItem(
-            parent_tree, [file_and_ext[0], file_and_ext[1]])
-    else:
-        item = QtWidgets.QTreeWidgetItem(parent_tree, [file_and_ext[0]])
-    if os.path.isdir(root_path):
-        for file_or_dir in os.listdir(root_path):
-            full_path = os.path.join(root_path, file_or_dir)
-            setTree(full_path, item)
+from PySide6 import QtCore
+import handledirectory as handledir
+import mysomefuncs as msf
+import usererror as userr
 
 
-class GetSetWidgets():
-    """Pyside 몇몇 위젯들을 설정하거나 리턴하는 getset기이다."""
-    def __init__(self):
-        self.root_tree_item: QtWidgets.QTreeWidgetItem
-        self.qtreewidget: QtWidgets.QTreeWidget
-        self.tree_item: QtWidgets.QTreeWidgetItem
-
-    def setRootTree(self, new_root_tree: QtWidgets.QTreeWidgetItem):
-        self.root_tree_item = new_root_tree
-
-    def getRootTree(self) -> QtWidgets.QTreeWidgetItem:
-        return self.root_tree_item
-    
-    def setTreeWidget(self, new_tree_widget: QtWidgets.QTreeWidget):
-        self.qtreewidget = new_tree_widget
-
-    def getTreeWidget(self) -> QtWidgets.QTreeWidget:
-        return self.qtreewidget
-    
-    def setTreeItem(self, new_tree_item: QtWidgets.QTreeWidgetItem):
-        self.tree_item = new_tree_item
-
-    def getTreeItem(self) -> QtWidgets.QTreeWidgetItem:
-        return self.tree_item
+def getAbsPathOfFile(
+        tree_item: QtWidgets.QTreeWidgetItem, 
+        path: str='',
+        root_dir_path: str=''
+        ) -> str:
+    """사용자가 선택한 트리 위젯의 파일 또는 폴더의
+    루트 경로를 제외한 전체 경로를 반환."""
+    if tree_item.parent() is None:
+        # 이미 최상위 트리 위젯 아이템인 경우, 루트 절대경로의 basename 리턴.
+        return os.path.basename(root_dir_path)
+    if tree_item.parent().text(0) == root_dir_path:
+        return path
+    path = tree_item.parent().text(0) + '/' + path
+    return getAbsPathOfFile(tree_item.parent(), path, root_dir_path)
 
 
-class EmBodyFunc():
-    """ui 부문을 제외한 데이터 처리, 기능 구현 등의 작업을 위한 클래스"""
+def findTreeItem(
+        tree_widget: QtWidgets.QTreeWidget, 
+        target_text: str
+        ):
+    """찾고자 하는 텍스트가 있는 트리 위젯 아이템을 찾아준다."""
+    match_condition = QtCore.Qt.MatchRecursive | QtCore.Qt.MatchExactly
+    result = tree_widget.findItems(target_text, match_condition, 0)
+    return result
+
+
+class GetSet():
+    """여러 위젯들을 설정 또는 반환하기 위한 getset기이다."""
     def __init__(
             self,
-            main_win : QtWidgets.QMainWindow = None,
-            getset_obj : GetSetWidgets = None
-        ):
+            root_tree_item: QtWidgets.QTreeWidgetItem = None,
+            root_tree_widget: QtWidgets.QTreeWidget = None,
+            current_tree_item: QtWidgets.QTreeWidgetItem = None
+            ):
+        self.root_tree_item = root_tree_item
+        self.root_tree_widget = root_tree_widget
+        self.current_tree_item = current_tree_item
+
+    def getRootTreeItem(self) -> QtWidgets.QTreeWidgetItem:
+        userr.QtWidgetNoneError().setTryExcept(
+            self.root_tree_item,
+            GetSet.getRootTreeItem.__name__
+            )
+        return self.root_tree_item
+    
+    def setRootTreeItem(
+            self, 
+            new_root_tree_item: QtWidgets.QTreeWidgetItem
+            ):
+        self.root_tree_item = new_root_tree_item
+
+    def getRootTreeWidget(self) -> QtWidgets.QTreeWidget: 
+        userr.QtWidgetNoneError().setTryExcept(
+            self.root_tree_item,
+            GetSet.getRootTreeWidget.__name__
+            )
+        return self.root_tree_widget
+    
+    def setRootTreeWidget(
+            self,
+            new_root_tree_widget: QtWidgets.QTreeWidget
+            ):
+        self.root_tree_widget = new_root_tree_widget
+
+    def getCurrentTreeItem(self) -> QtWidgets.QTreeWidgetItem:
+        userr.QtWidgetNoneError().setTryExcept(
+            self.root_tree_item,
+            GetSet.getCurrentTreeItem.__name__
+            )
+        return self.current_tree_item
+    
+    def setCurrentTreeItem(
+            self, 
+            new_current_tree_item: QtWidgets.QTreeWidgetItem
+            ):
+        self.current_tree_item = new_current_tree_item
+
+
+class EmbodyFunc():
+    """ui을 이루는 위젯을 구현하는 복잡한 알고리즘 구현"""
+    def __init__(
+            self,
+            main_win = None,
+            getset_obj: GetSet = None,
+            handle_dir_obj: handledir.HandleRootDir = None
+            ):
+        """main_win: MainWindow"""
         self.main_win = main_win
         self.getset = getset_obj
-        self.hd = HandleDir(main_win=main_win)
-        self.fio = FileIO()
+        self.hd = handle_dir_obj
+        self.fio = handledir.FileIO()
 
-    def getRootDir(self) -> str:
-        """현재 루트 폴더 경로명 반환."""
-        return self.hd.getDir()
+    def setRootDir(self, new_dir:str): self.hd.setRootDir(new_dir)
 
-    def createNewRootDir(self):
-        root_dir = self.hd.askAndGetDir("새 폴더를 추가할 경로 선택")
+    def createNewRootDir(self) -> bool:
+        """True: 수행 성공.
+        False: 사용자가 중간에 수행을 취소함."""
+        dir_dialog = QtWidgets.QFileDialog.getExistingDirectory(
+            self.main_win,
+            caption="새 폴더를 추가할 경로 선택"
+        )
 
         # 사용자가 QFileDialog에서 취소를 누른 경우.
         # 그냥 QFileDialog 창을 닫고 아무런 행동을 하지 않는다.
-        if root_dir == '': return
-        else: self.hd.setDir(root_dir)
+        if dir_dialog == '': return False
 
         while True:
             root_dir_name, ok = QtWidgets.QInputDialog.getText(
@@ -75,10 +119,7 @@ class EmBodyFunc():
                 "루트 폴더 이름을 입력하세요.", 
                 text="root"
             )
-            if not ok:
-                # 사용자가 취소를 누름. 루트 폴더 생성 취소
-                self.hd.setDir("")
-                break
+            if not ok: return False # 사용자가 취소를 누름. 루트 폴더 생성 취소
             elif root_dir_name == "":
                 # 사용자가 이름을 아무것도 입력하지 않을 경우 다시 입력하도록 함
                 QtWidgets.QMessageBox.critical(
@@ -86,98 +127,163 @@ class EmBodyFunc():
                         )
                 continue
             else:
+                self.hd.setRootDir(dir_dialog)
                 self.hd.addSubDir(root_dir_name)
-                message = "이미 같은 이름의 폴더가 있습니다. 다른 이름을 입력하세요."
-                is_ok = self.hd.tryMakeDir(message=message)
-                if is_ok: break
-                else: 
-                    self.hd.setDir(root_dir)
-                    os.chdir(self.hd.getDir())
+                is_error = self.hd.tryMakeRootDir()
+                if is_error is not None: 
+                    # 기존 디렉토리 존재 시 다른 이름을 입력하도록 권고.
+                    QtWidgets.QMessageBox.critical(self.main_win, "정보", is_error)
+                    continue
+                return True
 
-    def getOpenRootDir(self):
-        """사용자가 열 폴더 선택 시 해당 루트 폴더 경로를 설정"""
-        root_dir = self.hd.askAndGetDir("가져올 폴더 선택")
-
-        # 사용자가 QFileDialog에서 취소를 누른 경우.
-        # 그냥 QFileDialog 창을 닫고 아무런 행동을 하지 않는다.
-        if root_dir == '': return
-        self.hd.setDir(root_dir)
-        os.chdir(self.hd.getDir())
-                
-    def removeAllTreeWidgets(self):
-        """트리 위젯에 있는 모든 트리 위젯 아이템 삭제.
-        사용자 눈에는 빈 트리 위젯만 보이도록 한다."""
-        root_tree = self.getset.getRootTree()
-        if root_tree.childCount() == 0:
-            return
-        root_tree.takeChildren()
-        self.getset.setRootTree(root_tree)
-
+    def openRootDir(self) -> bool:
+        """True: 성공적으로 수행.
+        False: 사용자가 중간에 수행 취소."""
+        dir_dialog = QtWidgets.QFileDialog.getExistingDirectory(
+            self.main_win,
+            caption="폴더 열기"
+        )
+        if dir_dialog == '': return False
+        self.hd.setRootDir(dir_dialog)
+        return True
+        
     def showTree(self):
-        """사용자가 선택한 루트 폴더 내 모든 폴더 및 파일들을
-        계층에 따라 트리 형식으로 보여준다."""
-        if self.hd.getDir() == "": return
-        root_path = self.hd.getDir()
-        root_tree = self.getset.getRootTree()
-        root_tree.setText(0, root_path)
-        setTree(root_path, root_tree)
-        tree_widget = self.getset.getTreeWidget()
-        tree_widget.addTopLevelItem(root_tree)
+        """현재 선택된 루트 디렉토리 내의 전체 파일 또는 폴더들을
+        계층을 구분하여 트리 위젯에 보여줌."""
+        def setTree(
+            root_path: str,
+            super_tree_item: QtWidgets.QTreeWidgetItem
+            ):
+            """루트 디렉토리 경로로부터 모든 하위 디렉토리 및 파일들을
+            트리 위젯에 보이도록 설정한다."""
+            base = os.path.basename(root_path)
+            file_name, ext = os.path.splitext(base)
+            tree_item = QtWidgets.QTreeWidgetItem(super_tree_item)
+            tree_item.setText(0, file_name)
+            tree_item.setText(1, ext)
+            if os.path.isdir(root_path):
+                for file_or_dir in os.listdir(root_path):
+                    full_path = os.path.join(root_path, file_or_dir)
+                    setTree(full_path, tree_item)
+
+        root_dir_path = self.hd.getRootDir()
+        root_tree_item = self.getset.getRootTreeItem()
+        root_tree_item.setText(0, root_dir_path)
+        setTree(root_dir_path, root_tree_item)
+        tree_widget = self.getset.getRootTreeWidget()
+        tree_widget.addTopLevelItem(root_tree_item)
         tree_widget.resizeColumnToContents(0)
         tree_widget.show()
         tree_widget.expandAll()  # 트리 내 모든 하위 폴더 및 파일들을 펼쳐 보여줌.
-
-    def refreshTreeWidget(self):
-        """트리 위젯 새로 고침"""
-        self.removeAllTreeWidgets()
-        self.showTree()
-
-    def getTextFromSelectedTreeItem(self) -> str:
-        """사용자가 특정 텍스트 파일 선택 시 이를 
-        QTextEdit 위젯에 띄울 수 있도록 해당 파일 텍스트 반환."""
-        tree_item = self.getset.getTreeItem()
-        if self.hd.isDir(tree_item.text(0)): return ''
-        selected_file_path = tree_item.text(0) + "." + tree_item.text(1)
-        full_path = self.hd.getPathOfSelectedFile(
-            tree_item,
-            selected_file_path
-        )
-        self.fio.setPath(full_path)
-        try:
-            data = self.fio.readFromFile()
-            return data
-        except FileNotFoundError: pass  # 에러 무시
     
+    def removeAllTreeWidgets(self):
+        """트리 위젯에 있는 모든 트리 위젯 아이템 삭제.
+        사용자 눈에는 빈 트리 위젯만 보이도록 한다."""
+        root_tree_item = self.getset.getRootTreeItem()
+        if root_tree_item.childCount() == 0:
+            return
+        root_tree_item.takeChildren()
+        self.getset.setRootTreeItem(root_tree_item)
 
-class EmbodyFuncInContextTree(EmBodyFunc):
-    """트리 위젯의 컨텍스트 메뉴 전용"""
+    def getTextFromCurrentTreeItem(self) -> str | None:
+        """사용자가 트리 위젯 아이템 중 하나를 더블클릭 시 
+        해당 텍스트 파일 내용을 문자열로 반환.
+        사용자가 폴더 클릭 시 None 반환하여 아무 작업 실행하지 않도록 함."""
+        current_tree_item = self.getset.getCurrentTreeItem()
+        if current_tree_item.text(1) == '':
+            # 폴더인 경우. 무시한다.
+            return None
+        file_name = current_tree_item.text(0) + current_tree_item.text(1)
+        root_dir_name = os.path.dirname(self.hd.getRootDir())
+        file_basename = getAbsPathOfFile(
+            current_tree_item, file_name, self.hd.getRootDir()
+        )
+        file_abspath = root_dir_name + '/' + file_basename
+        print('file_abspath: ', file_abspath)  # 테스트용.
+        self.fio.setTargetDir(file_abspath)
+        content = self.fio.readTextFile()
+        return content
+
+
+class EmbodyFuncInContextTree(EmbodyFunc):
     def __init__(
             self,
-            main_win : QtWidgets.QMainWindow = None,
-            getset_obj : GetSetWidgets = None,
-        ):
-        super().__init__(main_win=main_win, getset_obj=getset_obj)
-        self.tree_widget = self.getset.getTreeWidget()
+            main_win = None,
+            getset_obj: GetSet = None,
+            handle_dir_obj: handledir.HandleRootDir = None
+            ):
+        """main_win: MainWindow"""
+        super().__init__(
+            main_win=main_win, 
+            getset_obj=getset_obj,
+            handle_dir_obj=handle_dir_obj
+        )
 
-    def createNewFile(self):
-        """사용자가 트리 위젯 아이템들 중 
-        선택한 파일이 포함된 상위 폴더의 절대경로에 새 파일 생성."""
-        tree_widget = self.getset.getTreeWidget()
-        base_name = tree_widget.currentItem().text(0)
-        extension = tree_widget.currentItem().text(1)
-        if extension != '':
-            # 폴더가 아닌 파일임. 반드시 폴더로 지정.
-            base_name = tree_widget.currentItem().parent().text(0)
-        full_path = os.path.abspath(base_name)
-        self.fio.setPath(full_path)
-        is_error = self.fio.createNewFile()
-        if is_error is not None:
-            print("===에러===")
-            print(is_error)
-            print('=========')
-            temp = QtWidgets.QMessageBox.critical(
-                self.main_win,
-                "에러",
-                "에러: 문제가 생겨 새 파일을 생성할 수 없습니다."
+    def createNewTxtFile(self):
+        """사용자가 트리 위젯에서 마우스 우클릭한 곳과 가장 가까운 폴더에
+        새 텍스트 파일을 생성한다."""
+        current_tree_item = self.getset.getCurrentTreeItem()
+        if current_tree_item.text(1) != '':
+            # 파일이 아닌 폴더가 대상이어야 함.
+            current_tree_item = current_tree_item.parent()
+        current_folder_name = current_tree_item.text(0)
+        current_folder_path = os.path.dirname(self.hd.getRootDir()) \
+        + '/' +  getAbsPathOfFile(
+            current_tree_item, 
+            current_folder_name, 
+            self.hd.getRootDir()
             )
-            return
+        print("current_folder_path: ", current_folder_path)
+        current_time_str = msf.TimeForFileName().currentTimeForFileName()
+        text_file_name = '새 텍스트 ' + current_time_str + '.txt'
+        target_path = current_folder_path + '/' + text_file_name
+        self.fio.setTargetDir(target_path)
+        self.fio.makeTextFile()
+
+    def changeNewName(self):
+        """사용자가 파일 또는 폴더 이름을 바꿀 수 있도록 하고, 
+        사용자로부터 새로 입력받은 이름을 바로 파일 또는 폴더명에 적용한다."""
+        while True:
+            new_name, ok = QtWidgets.QInputDialog.getText(
+                    self.main_win, 
+                    "새 이름 입력", 
+                    "새 이름을 입력하세요."
+                )
+            if not ok: return  # 사용자가 입력을 취소함.
+            elif new_name == '':
+                # 사용자가 이름을 아무것도 입력하지 않을 경우 다시 입력하도록 함
+                QtWidgets.QMessageBox.critical(
+                        self.main_win, "정보", "이름을 입력해야 합니다."
+                        )
+                continue
+            find_tree_items_with_same_text = findTreeItem(
+                self.getset.getRootTreeWidget(),
+                new_name
+            )
+            for one_tree_item in find_tree_items_with_same_text:
+                if one_tree_item.text(0) == new_name:
+                    message = "루트 폴더 내 계층, 또는 폴더나 파일 상관없이 이름의 중복을 허용하지 않습니다."
+                    QtWidgets.QMessageBox.critical(
+                        self.main_win, "정보", message
+                        )
+                    new_name += msf.TimeForFileName().currentTimeForFileName()
+                    break
+            break 
+        current_tree_item = self.getset.getCurrentTreeItem()
+        current_file_or_dir_name = current_tree_item.text(0) + current_tree_item.text(1)
+        current_path = getAbsPathOfFile(
+            current_tree_item,
+            current_file_or_dir_name,
+            self.hd.getRootDir()
+        )
+        current_path = os.path.join(os.path.dirname(self.hd.getRootDir()), current_path)
+        ...
+
+        #current_tree_item.setText(0, new_name)
+        # 실제 해당 파일 또는 폴더의 이름을 바꿔주는 코드 작성 필요.
+        
+
+
+if __name__ == '__main__':
+    getset_obj = GetSet()
+    print(getset_obj.getRootTreeItem())

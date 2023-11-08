@@ -1,0 +1,261 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>901</width>
+    <height>645</height>
+   </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QSplitter" name="splitter">
+    <property name="geometry">
+     <rect>
+      <x>11</x>
+      <y>11</y>
+      <width>881</width>
+      <height>541</height>
+     </rect>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Horizontal</enum>
+    </property>
+    <widget class="QTreeWidget" name="treeWidget">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>20</width>
+       <height>0</height>
+      </size>
+     </property>
+     <column>
+      <property name="text">
+       <string/>
+      </property>
+     </column>
+    </widget>
+    <widget class="QTextEdit" name="textEdit">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>20</width>
+       <height>0</height>
+      </size>
+     </property>
+    </widget>
+   </widget>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>901</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>파일</string>
+    </property>
+    <addaction name="actionAddRootFolder"/>
+    <addaction name="actionOpenFolder"/>
+    <addaction name="actionSave"/>
+    <addaction name="separator"/>
+    <addaction name="actionRefreshTree"/>
+   </widget>
+   <widget class="QMenu" name="menuDocument">
+    <property name="title">
+     <string>도구</string>
+    </property>
+    <addaction name="actionTooBarOnOff"/>
+   </widget>
+   <widget class="QMenu" name="menuTool">
+    <property name="title">
+     <string>문서</string>
+    </property>
+    <addaction name="actionReadMode"/>
+    <addaction name="actionEditMode"/>
+    <addaction name="actionAddImage"/>
+   </widget>
+   <addaction name="menuFile"/>
+   <addaction name="menuTool"/>
+   <addaction name="menuDocument"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <widget class="QToolBar" name="toolBar">
+   <property name="windowTitle">
+    <string>toolBar</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actionAddRootFolder"/>
+   <addaction name="actionOpenFolder"/>
+   <addaction name="actionSave"/>
+   <addaction name="actionAddNewDoc"/>
+   <addaction name="actionRefreshTree"/>
+   <addaction name="separator"/>
+   <addaction name="actionReadMode"/>
+   <addaction name="actionEditMode"/>
+   <addaction name="actionAddImage"/>
+  </widget>
+  <action name="actionOpenFolder">
+   <property name="icon">
+    <iconset resource="iconResources.qrc">
+     <normaloff>:/icon/icons/folderclosed1.png</normaloff>:/icon/icons/folderclosed1.png</iconset>
+   </property>
+   <property name="text">
+    <string>폴더 열기</string>
+   </property>
+   <property name="toolTip">
+    <string>컨텐츠들이 포함된 폴더를 엽니다.</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+O</string>
+   </property>
+  </action>
+  <action name="actionSave">
+   <property name="icon">
+    <iconset resource="iconResources.qrc">
+     <normaloff>:/icon/icons/floppy-disk-32.png</normaloff>:/icon/icons/floppy-disk-32.png</iconset>
+   </property>
+   <property name="text">
+    <string>폴더 전체 저장</string>
+   </property>
+   <property name="toolTip">
+    <string>폴더 내 모든 내용을 저장.</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
+   </property>
+  </action>
+  <action name="actionReadMode">
+   <property name="icon">
+    <iconset resource="iconResources.qrc">
+     <normaloff>:/icon/icons/address-book.png</normaloff>:/icon/icons/address-book.png</iconset>
+   </property>
+   <property name="text">
+    <string>읽기 모드</string>
+   </property>
+   <property name="toolTip">
+    <string>읽기 모드로 전환 (편집 불가)</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+R</string>
+   </property>
+  </action>
+  <action name="actionEditMode">
+   <property name="icon">
+    <iconset resource="iconResources.qrc">
+     <normaloff>:/icon/icons/note-edit.png</normaloff>:/icon/icons/note-edit.png</iconset>
+   </property>
+   <property name="text">
+    <string>편집 모드</string>
+   </property>
+   <property name="toolTip">
+    <string>편집 모드로 전환합니다.</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+W</string>
+   </property>
+  </action>
+  <action name="actionAddImage">
+   <property name="icon">
+    <iconset resource="iconResources.qrc">
+     <normaloff>:/icon/icons/img-landscape-add2.png</normaloff>:/icon/icons/img-landscape-add2.png</iconset>
+   </property>
+   <property name="text">
+    <string>이미지 첨부</string>
+   </property>
+   <property name="toolTip">
+    <string>문서 내에 이미지를 첨부합니다.</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+I</string>
+   </property>
+  </action>
+  <action name="actionTooBarOnOff">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>도구 모음 켜기/끄기</string>
+   </property>
+   <property name="toolTip">
+    <string>도구 모음(toolbar)을 키거나 끕니다.</string>
+   </property>
+  </action>
+  <action name="actionAddRootFolder">
+   <property name="icon">
+    <iconset resource="iconResources.qrc">
+     <normaloff>:/icon/icons/folder-new.png</normaloff>:/icon/icons/folder-new.png</iconset>
+   </property>
+   <property name="text">
+    <string>새 루트 폴더 추가</string>
+   </property>
+   <property name="toolTip">
+    <string>새 루트 폴더 추가</string>
+   </property>
+  </action>
+  <action name="actionAddNewDoc">
+   <property name="icon">
+    <iconset resource="iconResources.qrc">
+     <normaloff>:/icon/icons/document-new.png</normaloff>:/icon/icons/document-new.png</iconset>
+   </property>
+   <property name="text">
+    <string>새 문서</string>
+   </property>
+   <property name="toolTip">
+    <string>폴더 내 새 문서를 추가합니다.</string>
+   </property>
+  </action>
+  <action name="actionRefreshTree">
+   <property name="icon">
+    <iconset resource="iconResources.qrc">
+     <normaloff>:/icon/icons/clockwise-arrow1.png</normaloff>:/icon/icons/clockwise-arrow1.png</iconset>
+   </property>
+   <property name="text">
+    <string>트리 새로고침</string>
+   </property>
+   <property name="toolTip">
+    <string>트리를 새로고침합니다.</string>
+   </property>
+   <property name="shortcut">
+    <string>F5</string>
+   </property>
+  </action>
+ </widget>
+ <resources>
+  <include location="iconResources.qrc"/>
+ </resources>
+ <connections/>
+</ui>

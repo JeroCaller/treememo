@@ -1,31 +1,39 @@
 from PySide6 import QtWidgets
 from PySide6 import QtCore
 from PySide6 import QtGui
-import ver2.embodyfunc as ef
-import ver2.mainmemo as mainmemo
+import embodyfunc as ef
 
 
 class ContextMenuForTreeWidget():
     """오로지 트리 위젯 위에서만 트리 위젯과 관련된 컨텍스트 메뉴가 뜨게 한다."""
     def __init__(
             self,
-            main_win=None,
-            tree_widget: QtWidgets.QTreeWidget=None,
-            root_tree_item: QtWidgets.QTreeWidgetItem=None,
+            main_win = None,
+            getset_obj = None,
+            handle_dir_obj = None
         ):
-        """main_win: MainWindow"""
+        """main_win: MainWindow
+        getset_obj: ef.GetSet
+        handle_dir_obj: handledirectory.HandleRootDir"""
+        
         self.main_win = main_win
+        self.getset = getset_obj
+        self.hd = handle_dir_obj
 
-        self.tree_widget = tree_widget
+        self.tree_widget = self.getset.getRootTreeWidget()
+        #self.tree_widget = root_tree_widget
         self.tree_widget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         self.tree_widget.customContextMenuRequested.connect(self.showContextMenu)
 
-        self.cont_getset = ef.GetSetWidgets()
-        self.cont_getset.setTreeWidget(self.tree_widget)
-        self.cont_getset.setRootTree(root_tree_item)
+        self.root_tree_item = self.getset.getRootTreeItem()
+
+        #self.cont_getset = ef.GetSet()
+        #self.cont_getset.setRootTreeWidget(self.tree_widget)
+        #self.cont_getset.setRootTreeItem(root_tree_item)
         self.context_funcs = ef.EmbodyFuncInContextTree(
             main_win=main_win,
-            getset_obj=self.cont_getset
+            getset_obj=self.getset,
+            handle_dir_obj=self.hd
         )
 
     def showContextMenu(self, pos: QtCore.QPoint):
@@ -67,7 +75,8 @@ class ContextMenuForTreeWidget():
         context.exec(self.tree_widget.mapToGlobal(pos))
 
     def createNewTxtFile(self): 
-        self.context_funcs.createNewFile()
+        self.getset.setCurrentTreeItem(self.current_item)
+        self.context_funcs.createNewTxtFile()
         self.main_win.refreshTreeWidget()
 
     def deleteTxtFile(self):
@@ -80,4 +89,10 @@ class ContextMenuForTreeWidget():
         pass
 
     def changeNewName(self):
-        pass
+        """사용자가 특정 트리 위젯 아이템에서 해당 액션 활성화 시 
+        그 파일 또는 폴더 이름을 사용자가 원하는대로 바꿀 수 있도록 해준다."""
+        # 테스트 필요.
+        self.getset.setCurrentTreeItem(self.current_item)
+        self.context_funcs.changeNewName()
+        self.main_win.refreshTreeWidget()
+    

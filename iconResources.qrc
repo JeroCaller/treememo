@@ -1,0 +1,13 @@
+<RCC>
+  <qresource prefix="icon">
+    <file>icons/document-new.png</file>
+    <file>icons/folder-new.png</file>
+    <file>icons/two_tree.jpg</file>
+    <file>icons/address-book.png</file>
+    <file>icons/clockwise-arrow1.png</file>
+    <file>icons/floppy-disk-32.png</file>
+    <file>icons/folderclosed1.png</file>
+    <file>icons/img-landscape-add2.png</file>
+    <file>icons/note-edit.png</file>
+  </qresource>
+</RCC>
