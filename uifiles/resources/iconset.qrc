@@ -1,0 +1,16 @@
+<RCC>
+  <qresource prefix="icons">
+    <file>icons/pencil.jpeg</file>
+    <file>icons/read.jpeg</file>
+    <file>icons/add_folder.jpeg</file>
+    <file>icons/add_new_file.jpeg</file>
+    <file>icons/bold_letter.jpeg</file>
+    <file>icons/image.jpeg</file>
+    <file>icons/open_folder.jpeg</file>
+    <file>icons/save.jpeg</file>
+    <file>icons/text_center_align.png</file>
+    <file>icons/text_left_align.png</file>
+    <file>icons/text_right_align.png</file>
+    <file>icons/tree_memo.jpeg</file>
+  </qresource>
+</RCC>
